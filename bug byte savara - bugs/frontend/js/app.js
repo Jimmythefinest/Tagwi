@@ -4,7 +4,7 @@ const API = "http://localhost:5000";
 async function userLogin() {
   const res = await fetch(API + "/api/user/login", {
     method: "POST",
-    headers: {"Content-Type": "application/json"},
+    headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
       username: username.value,
       password: password.value
@@ -14,9 +14,16 @@ async function userLogin() {
   const data = await res.json();
 
   if (data.success === true) {
+    localStorage.setItem("user", "true"); // PERSISTENCE
     window.location.href = "home.html";
   } else {
     alert("Login failed");
+  }
+}
+
+function checkUser() {
+  if (!localStorage.getItem("user")) {
+    window.location.href = "login.html";
   }
 }
 
@@ -24,7 +31,7 @@ async function userLogin() {
 async function register() {
   await fetch(API + "/api/user/register", {
     method: "POST",
-    headers: {"Content-Type": "application/json"},
+    headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
       username: username.value,
       password: password.value
@@ -36,7 +43,7 @@ async function register() {
 
 /* PRODUCTS */
 async function loadProducts() {
-  const res = await fetch(API + "/api/product"); // BUG
+  const res = await fetch(API + "/api/products"); // FIX: was /api/product
   const data = await res.json();
 
   const list = document.getElementById("list");
@@ -46,7 +53,7 @@ async function loadProducts() {
     list.innerHTML += `
       <div class="product">
         <h4>${p.name}</h4>
-        <p>₹${p.price * 2}</p>
+        <p>₹${p.price}</p>  <!-- FIX: was p.price * 2 -->
         <button onclick="addToCart(${p.id}, '${p.name}', ${p.price})">Cart</button>
       </div>
     `;
@@ -57,17 +64,16 @@ async function loadProducts() {
 function addToCart(id, name, price) {
   let cart = JSON.parse(localStorage.getItem("cartItems")) || [];
   cart.push({ id, name, price });
-  localStorage.setItem("cart", JSON.stringify(cart)); // BUG
+  localStorage.setItem("cartItems", JSON.stringify(cart)); // FIX: was "cart", must match "cartItems"
 }
 
 /* ORDER */
 async function placeOrder() {
-  const item = JSON.parse(localStorage.getItem("buyNowItem"));
-  const items = item ? [item] : []; // BUG
+  const items = JSON.parse(localStorage.getItem("cartItems")) || []; // FIX: use cartItems, not buyNowItem
 
   await fetch(API + "/api/orders", {
     method: "POST",
-    headers: {"Content-Type": "application/json"},
+    headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
       items,
       name: name.value,
@@ -75,18 +81,21 @@ async function placeOrder() {
     })
   });
 
+  localStorage.removeItem("cartItems");
   alert("Order placed!");
 }
 
 /* ADMIN */
 function checkAdmin() {
-  if (!localStorage.getItem("admin")) return;
+  if (!localStorage.getItem("admin")) {
+    window.location.href = "../admin/login.html";
+  }
 }
 
 async function adminLogin() {
   const res = await fetch(API + "/api/admin/login", {
     method: "POST",
-    headers: {"Content-Type": "application/json"},
+    headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
       username: username.value,
       password: password.value

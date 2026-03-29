@@ -1,18 +1,62 @@
 <!DOCTYPE html>
 <html>
+
+<head>
+  <link rel="stylesheet" href="../css/style.css">
+</head>
+
 <body>
 
-<div id="orders"></div>
+  <div class="main">
+    <div class="sidebar">
+      <h2>Admin</h2>
+      <hr style="margin: 20px 0; border: 0; border-top: 1px solid #1e293b;">
+      <a href="dashboard.html"
+        style="color: white; display: block; margin-bottom: 15px; text-decoration: none;">Dashboard</a>
+      <a href="products.html" style="color: white; display: block; margin-bottom: 15px; text-decoration: none;">Manage
+        Products</a>
+      <a href="orders.html" style="color: white; display: block; margin-bottom: 15px; text-decoration: none;">View
+        Orders</a>
+      <hr style="margin: 20px 0; border: 0; border-top: 1px solid #1e293b;">
+      <button onclick="localStorage.removeItem('admin'); window.location.href='login.html'"
+        style="background: transparent; color: white; border: 1px solid white; width: 100%;">Logout</button>
+    </div>
 
-<script>
-fetch("http://localhost:5000/api/order")
-.then(r => r.json())
-.then(d => {
-  d.forEach(o => {
-    document.body.innerHTML += o.name + " " + o.card;
-  });
-});
-</script>
+    <div class="content" style="flex-grow: 1;">
+      <h2>Customer Orders</h2>
+      <div id="ordersList" style="margin-top: 20px;"></div>
+    </div>
+  </div>
+
+  <script src="../js/app.js"></script>
+  <script>
+    checkAdmin();
+    const list = document.getElementById("ordersList");
+
+    fetch("http://localhost:5000/api/orders")
+      .then(r => r.json())
+      .then(d => {
+        if (d.length === 0) {
+          list.innerHTML = "<p>No orders yet.</p>";
+          return;
+        }
+        d.forEach(o => {
+          let itemsHtml = (o.items || []).map(i => `<li>${i.name} - ₹${i.price}</li>`).join("");
+          list.innerHTML += `
+      <div class="card">
+        <div style="display: flex; justify-content: space-between;">
+          <strong>Customer: ${o.name}</strong>
+          <span style="color: #64748b;">Card: ${o.card}</span>
+        </div>
+        <ul style="margin-top: 10px; padding-left: 20px;">
+          ${itemsHtml}
+        </ul>
+      </div>
+    `;
+        });
+      });
+  </script>
 
 </body>
+
 </html>

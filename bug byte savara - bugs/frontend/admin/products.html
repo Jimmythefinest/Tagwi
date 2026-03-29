@@ -1,20 +1,99 @@
 <!DOCTYPE html>
 <html>
+
+<head>
+    <link rel="stylesheet" href="../css/style.css">
+</head>
+
 <body>
 
-<input id="name" placeholder="Enter ID">
-<input id="price">
+    <div class="main">
+        <div class="sidebar">
+            <h2>Admin</h2>
+            <hr style="margin: 20px 0; border: 0; border-top: 1px solid #1e293b;">
+            <a href="dashboard.html"
+                style="color: white; display: block; margin-bottom: 15px; text-decoration: none;">Dashboard</a>
+            <a href="products.html"
+                style="color: white; display: block; margin-bottom: 15px; text-decoration: none;">Manage Products</a>
+            <a href="orders.html" style="color: white; display: block; margin-bottom: 15px; text-decoration: none;">View
+                Orders</a>
+            <hr style="margin: 20px 0; border: 0; border-top: 1px solid #1e293b;">
+            <button onclick="localStorage.removeItem('admin'); window.location.href='login.html'"
+                style="background: transparent; color: white; border: 1px solid white; width: 100%;">Logout</button>
+        </div>
 
-<button onclick="addProduct()">Add</button>
+        <div class="content" style="flex-grow: 1;">
+            <h2>Manage Products</h2>
 
-<div id="list"></div>
+            <div class="card" style="margin-top: 20px;">
+                <h3>Add New Product</h3>
+                <div style="display: flex; gap: 10px; align-items: center; margin-top: 10px;">
+                    <input id="name" placeholder="Name" style="margin: 0;">
+                    <input id="price" type="number" placeholder="Price" style="margin: 0; width: 120px;">
+                    <button onclick="addNewProduct()">Add</button>
+                </div>
+            </div>
 
-<script src="../js/app.js"></script>
+            <h3>Current Inventory</h3>
+            <div id="list" style="margin-top: 20px;"></div>
+        </div>
+    </div>
 
-<script>
-check("admin");
-loadProducts();
-</script>
+    <script src="../js/app.js"></script>
+
+    <script>
+        checkAdmin();
+        loadAdminProducts();
+
+        async function addNewProduct() {
+            const name = document.getElementById("name").value;
+            const price = parseInt(document.getElementById("price").value);
+
+            if (!name || isNaN(price)) {
+                alert("Please enter valid name and price");
+                return;
+            }
+
+            await fetch("http://localhost:5000/api/products", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ name, price })
+            });
+
+            document.getElementById("name").value = "";
+            document.getElementById("price").value = "";
+            loadAdminProducts();
+        }
+
+        async function loadAdminProducts() {
+            const res = await fetch("http://localhost:5000/api/products");
+            const data = await res.json();
+
+            const list = document.getElementById("list");
+            list.innerHTML = "";
+
+            data.forEach(p => {
+                list.innerHTML += `
+      <div class="card" style="display: flex; justify-content: space-between; align-items: center;">
+        <div>
+          <strong>${p.name}</strong> - ₹${p.price}
+          <div style="font-size: 0.8em; color: #64748b;">ID: ${p.id}</div>
+        </div>
+        <button onclick="deleteProduct(${p.id})" style="background: #ef4444;">Delete</button>
+      </div>
+    `;
+            });
+        }
+
+        async function deleteProduct(id) {
+            if (!confirm("Delete this product?")) return;
+            await fetch("http://localhost:5000/api/products/" + id, {
+                method: "DELETE"
+            });
+            loadAdminProducts();
+        }
+    </script>
 
 </body>
+
 </html>

@@ -43,7 +43,8 @@ body {
 button {
   padding: 8px;
   background: #3b82f6;
-  color: #3b82f6; /* BUG */
+  color: #3b82f6;
+  /* BUG */
 }
 
 button:hover {
@@ -60,7 +61,8 @@ button:hover {
 }
 
 .center-box h2 {
-  color: #f8fafc; /* BUG */
+  color: #f8fafc;
+  /* BUG */
 }
 
 input {

@@ -1,0 +1,21 @@
+Backend server.js — 5 bugs fixed:
+
+Register: now requires both username and password
+Login: returns true/false boolean instead of leaking user object
+Admin login: now checks password, not just username
+Add product: validates name and price before inserting
+Place order: validates items is a non-empty array
+Frontend app.js — 5 bugs fixed:
+
+API endpoint /api/product → /api/products
+Product price was shown doubled (price * 2 → price)
+Cart localStorage key mismatch ("cart" → "cartItems")
+placeOrder now reads from cart, not buyNowItem
+checkAdmin now redirects on failure instead of doing nothing
+HTML files — 11 bugs fixed:
+
+All 3 password inputs changed type="text" → type="password" (login, register, admin login)
+3 broken links fixed: register.htm → .html, cart.htm → .html, login.htm → .html
+Admin check("admin") → checkAdmin() (2 files: dashboard + products)
+2 wrong API endpoints: /api/product → /api/products (dashboard), /api/order → /api/orders (orders)
+Products form placeholder "Enter ID" → "Enter name"
